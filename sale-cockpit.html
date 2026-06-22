@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --line:#2a2f3a;
+    --txt:#e7e9ee; --mut:#9aa3b2; --acc:#4f7cff; --acc2:#3a63d6;
+    --ok:#34c759; --warn:#ffb020; --bad:#ff5a5f; --hot:#ff7a45;
+    --chip:#232838;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,Arial,sans-serif;background:var(--bg);color:var(--txt);font-size:14px}
+  a{color:var(--acc)}
+  header{display:flex;align-items:center;gap:14px;padding:12px 18px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+  header h1{font-size:16px;margin:0;font-weight:700}
+  header .sub{color:var(--mut);font-size:12px}
+  nav{display:flex;gap:4px;flex-wrap:wrap;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:49px;z-index:19}
+  nav button{background:transparent;border:1px solid transparent;color:var(--mut);padding:7px 13px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600}
+  nav button.active{background:var(--panel2);color:var(--txt);border-color:var(--line)}
+  nav button:hover{color:var(--txt)}
+  main{padding:18px;max-width:1200px;margin:0 auto}
+  .tab{display:none}
+  .tab.active{display:block}
+  .row{display:flex;gap:14px;flex-wrap:wrap}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media(max-width:820px){.grid4,.grid3,.grid2{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.grid4,.grid3,.grid2{grid-template-columns:1fr}}
+  .kpi{cursor:default}
+  .kpi.clk{cursor:pointer}
+  .kpi.clk:hover{border-color:var(--acc)}
+  .kpi .lbl{color:var(--mut);font-size:12px;margin-bottom:6px}
+  .kpi .val{font-size:30px;font-weight:800;line-height:1}
+  .kpi .hint{color:var(--mut);font-size:11px;margin-top:6px}
+  .funnel{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch;margin-top:6px}
+  .fstep{flex:1;min-width:120px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center}
+  .fstep .n{font-size:24px;font-weight:800}
+  .fstep .t{color:var(--mut);font-size:12px;margin-top:3px}
+  .fstep .r{margin-top:6px;font-size:12px;color:var(--acc);font-weight:700}
+  h2{font-size:15px;margin:0 0 12px}
+  h3{font-size:13px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;margin:18px 0 8px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+  th{color:var(--mut);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.03em}
+  tr:hover td{background:#1b1f28}
+  .btn{background:var(--acc);color:#fff;border:none;padding:9px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px}
+  .btn:hover{background:var(--acc2)}
+  .btn.sec{background:var(--panel2);border:1px solid var(--line);color:var(--txt)}
+  .btn.sec:hover{border-color:var(--acc)}
+  .btn.sm{padding:5px 9px;font-size:12px}
+  .btn.danger{background:var(--bad)}
+  input,select,textarea{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:9px 10px;font-size:13px;font-family:inherit;width:100%}
+  textarea{resize:vertical;min-height:64px}
+  label{display:block;color:var(--mut);font-size:12px;margin:10px 0 4px}
+  .chip{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:var(--chip)}
+  .c-moi{background:#26334d;color:#8fb4ff}
+  .c-da_goi{background:#2c3a2e;color:#9fe2a8}
+  .c-hen_lai{background:#3a3320;color:#ffd98a}
+  .c-chot{background:#22402c;color:#5fe08a}
+  .c-tu_choi{background:#3a2326;color:#ff9aa0}
+  .lv-EASY{background:#22402c;color:#5fe08a}
+  .lv-MEDIUM{background:#3a3320;color:#ffd98a}
+  .lv-HARD{background:#3a2326;color:#ff9aa0}
+  .disc{font-weight:800;padding:2px 8px;border-radius:6px}
+  .disc-D{background:#3a2326;color:#ff8a8a}.disc-I{background:#3a3320;color:#ffd07a}
+  .disc-S{background:#22402c;color:#7fe0a0}.disc-C{background:#26334d;color:#9fb8ff}
+  .overdue{color:var(--bad);font-weight:700}
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;align-items:flex-start;justify-content:center;padding:30px 14px;overflow:auto}
+  .modal-bg.show{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;width:100%;max-width:780px;padding:20px}
+  .modal h2{display:flex;justify-content:space-between;align-items:center}
+  .x{cursor:pointer;color:var(--mut);font-size:20px;background:none;border:none}
+  .pill{display:inline-flex;gap:6px;align-items:center}
+  .bar{height:8px;background:var(--panel2);border-radius:6px;overflow:hidden}
+  .bar>i{display:block;height:100%;background:var(--acc)}
+  .muted{color:var(--mut)}
+  .acc-item{border:1px solid var(--line);border-radius:10px;margin-bottom:8px;overflow:hidden}
+  .acc-item>summary{padding:11px 14px;cursor:pointer;font-weight:700;background:var(--panel2);list-style:none}
+  .acc-item>summary::-webkit-details-marker{display:none}
+  .acc-item .body{padding:12px 14px}
+  .fpsc-step{border-left:3px solid var(--acc);padding-left:12px;margin-bottom:14px}
+  .tag{display:inline-block;background:var(--chip);color:var(--acc);border-radius:6px;padding:1px 7px;font-size:11px;font-weight:700;margin:2px 3px 2px 0}
+  .chatbox{height:340px;overflow:auto;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px}
+  .msg{max-width:80%;padding:8px 11px;border-radius:10px;font-size:13px;line-height:1.45;white-space:pre-wrap}
+  .msg.me{align-self:flex-end;background:var(--acc);color:#fff}
+  .msg.kh{align-self:flex-start;background:var(--panel2);border:1px solid var(--line)}
+  .aiout{white-space:pre-wrap;line-height:1.55;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px;font-size:13px}
+  .flexbtn{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .note{background:#1a2030;border:1px solid #2a3550;border-radius:10px;padding:11px 13px;font-size:12.5px;color:#bcd0ff}
+  .warnbox{background:#2a2113;border:1px solid #5a4420;border-radius:10px;padding:11px 13px;font-size:13px;color:#ffd98a}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .toolbar input,.toolbar select{width:auto}
+  .small{font-size:12px}
+  .rec-dot{width:10px;height:10px;border-radius:50%;background:var(--bad);display:inline-block;animation:blink 1s infinite}
+  @keyframes blink{50%{opacity:.2}}
+  .statusbadge{font-size:11px;padding:2px 8px;border-radius:6px}
+  .on{background:#22402c;color:#5fe08a}.off{background:#3a2326;color:#ff9aa0}
+
+  /* ===== Liquid glass theme ===== */
+  html{background:#000}
+  body{background:transparent;font-family:'Montserrat',system-ui,Arial,sans-serif}
+  #bg{position:fixed;inset:0;z-index:-3;overflow:hidden}
+  #bg video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.82;display:none}
+  #bg video.show{display:block}
+  #bgScrim{position:fixed;inset:0;z-index:-2;background:linear-gradient(180deg,rgba(0,0,0,.32),rgba(0,0,0,.5))}
+  #topbar{position:sticky;top:0;z-index:30;background:#0b0d12;border-bottom:1px solid var(--line)}
+  header,nav{position:static;top:auto;background:transparent;border-bottom:none}
+  nav{border-top:1px solid rgba(255,255,255,.05)}
+  nav button.active{background:rgba(255,255,255,.1)}
+  .card,.modal,.fstep{position:relative}
+  .card{background:rgba(18,21,28,.62);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-color:rgba(255,255,255,.1)}
+  .card::before,.modal::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1.2px;background:linear-gradient(180deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,.12) 20%,rgba(255,255,255,0) 40%,rgba(255,255,255,0) 60%,rgba(255,255,255,.12) 80%,rgba(255,255,255,.42) 100%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;z-index:0}
+  .card>*{position:relative;z-index:1}
+  .modal{background:rgba(16,19,26,.94);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+  .fstep{background:rgba(255,255,255,.06);backdrop-filter:blur(8px)}
+  .kpi.clk:hover{border-color:rgba(120,160,255,.6);box-shadow:0 0 24px rgba(99,140,255,.15)}
+  #madeby{display:block;text-align:center;margin:22px 0 4px}
+  #madeby a{color:rgba(255,255,255,.45);font-size:12px;text-decoration:none;letter-spacing:.03em}
+  #madeby a:hover{color:rgba(255,255,255,.85)}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+</head>
+<body>
+<div id="bg">
+  <video id="bgDash" muted autoplay loop playsinline preload="auto" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_074625_a81f018a-956b-43fb-9aee-4d1508e30e6a.mp4"></video>
+  <video id="bgKH" muted autoplay loop playsinline preload="auto" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260307_083826_e938b29f-a43a-41ec-a153-3d4730578ab8.mp4"></video>
+  <video id="bgSet" muted autoplay loop playsinline preload="auto" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260402_054547_9875cfc5-155a-4229-8ec8-b7ba7125cbf8.mp4"></video>
+</div>
+<div id="bgScrim"></div>
+<div id="topbar">
+<header>
+  <h1>📊 Sales Tool</h1>
+  <span class="sub">Tối ưu quy trình tư vấn TOEIC · DMAX</span>
+  <span style="flex:1"></span>
+  <span id="aiBadge" class="statusbadge off">AI: tắt</span>
+</header>
+<nav>
+  <button data-tab="dash" class="active">Tổng quan</button>
+  <button data-tab="kh">Khách hàng</button>
+  <button data-tab="ai">AI Chốt sale</button>
+  <button data-tab="rec">Ghi âm & Phân tích</button>
+  <button data-tab="fpsc">Kịch bản FPSC</button>
+  <button data-tab="obj">Thư viện từ chối</button>
+  <button data-tab="report">Tổng kết</button>
+  <button data-tab="set">Cài đặt</button>
+</nav>
+</div>
+<main>
+
+<!-- ============ DASHBOARD ============ -->
+<section id="dash" class="tab active">
+  <div class="grid4">
+    <div class="card kpi clk" id="kpiData">
+      <div class="lbl">Tổng lượng Data</div>
+      <div class="val" id="mData">0</div>
+      <div class="hint">Bấm để mở Form thu KH →</div>
+    </div>
+    <div class="card kpi clk" id="kpiThan">
+      <div class="lbl">KH thân tình</div>
+      <div class="val" id="mThan">0</div>
+      <div class="hint">Đã tạo thiện cảm · bấm để xem →</div>
+    </div>
+    <div class="card kpi clk" id="kpiHen">
+      <div class="lbl">Buổi đã hẹn</div>
+      <div class="val" id="mHen">0</div>
+      <div class="hint">Đã chốt lịch tư vấn</div>
+    </div>
+    <div class="card kpi clk" id="kpiOk">
+      <div class="lbl">Buổi thành công (đã cọc)</div>
+      <div class="val" id="mOk">0</div>
+      <div class="hint">Đã chốt cọc</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h2>Phễu chuyển đổi</h2>
+    <div class="funnel">
+      <div class="fstep"><div class="n" id="fD">0</div><div class="t">Data</div></div>
+      <div class="fstep"><div class="n" id="fT">0</div><div class="t">Thân tình</div><div class="r" id="rT">— % phản hồi</div></div>
+      <div class="fstep"><div class="n" id="fA">0</div><div class="t">Đã hẹn</div><div class="r" id="rA">— vào tư vấn</div></div>
+      <div class="fstep"><div class="n" id="fC">0</div><div class="t">Đã cọc</div><div class="r" id="rC">— tỉ lệ chốt</div></div>
+      <div class="fstep"><div class="n" id="fH">0</div><div class="t">Hoàn thành HP</div><div class="r" id="rH">— hoàn tất</div></div>
+    </div>
+    <p class="muted small" style="margin:12px 0 0">Mọi chỉ số tự tính từ tab <b>Khách hàng</b>. Mỗi tick (đã hẹn / đã cọc / hoàn thành đơn) cập nhật phễu tức thì.</p>
+  </div>
+
+  <div class="grid2" style="margin-top:14px">
+    <div class="card">
+      <h2>⚡ Cần làm hôm nay</h2>
+      <div id="todayList"><p class="muted">Chưa có KH nào tới hạn follow-up.</p></div>
+    </div>
+    <div class="card">
+      <h2>🔥 KH nóng chưa chốt</h2>
+      <p class="muted small" style="margin:-6px 0 8px">KH có độ sẵn sàng ≥ 60% nhưng chưa tick "đã cọc" — nhóm gần chốt nhất, ưu tiên gọi trước.</p>
+      <div id="hotList"><p class="muted">Chưa có KH nóng.</p></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h2>🗓️ Lịch sắp tới</h2>
+    <div id="timeline"></div>
+  </div>
+  <div id="weeklyAlert"></div>
+  <div id="madeby"><a href="https://www.facebook.com/tai.quoc.van.2007" target="_blank" rel="noopener">made by Tài</a></div>
+</section>
+
+<!-- ============ KHACH HANG ============ -->
+<section id="kh" class="tab">
+  <div class="toolbar">
+    <button class="btn" onclick="openCust()">+ Thêm KH</button>
+    <input id="search" placeholder="Tìm tên / Zalo / trường..." oninput="renderKH()" style="min-width:220px">
+    <select id="fStatus" onchange="renderKH()">
+      <option value="">Mọi trạng thái</option>
+      <option value="moi">Mới</option><option value="da_goi">Đã gọi</option>
+      <option value="hen_lai">Hẹn lại</option><option value="chot">Chốt</option>
+      <option value="tu_choi">Từ chối</option>
+    </select>
+    <select id="fLevel" onchange="renderKH()">
+      <option value="">Mọi loại</option><option>EASY</option><option>MEDIUM</option><option>HARD</option>
+    </select>
+    <span style="flex:1"></span>
+    <span class="muted small" id="khCount"></span>
+  </div>
+  <div class="card" style="padding:6px;overflow:auto">
+    <table id="khTable">
+      <thead><tr>
+        <th>Tên</th><th>Liên hệ</th><th>Test</th><th>NV1</th><th>Loại</th><th>DISC</th>
+        <th>Sẵn sàng</th><th>Trạng thái</th><th>Hẹn</th><th>Cọc</th><th>HT</th><th>Follow-up</th><th></th>
+      </tr></thead>
+      <tbody id="khBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ AI ============ -->
+<section id="ai" class="tab">
+  <div class="card" id="aiOffNote" style="display:none">
+    <div class="warnbox">Chưa bật AI. Vào tab <b>Cài đặt</b> để dán API key Gemini (test ngay) hoặc URL proxy chung (chia sẻ team).</div>
+  </div>
+  <div class="card">
+    <h2>🤖 Trợ lý chốt sale</h2>
+    <label>Chọn khách hàng</label>
+    <select id="aiCust" onchange="aiLoadCust()"></select>
+    <div class="flexbtn">
+      <button class="btn" onclick="aiGenScript()">Tạo kịch bản chốt sale</button>
+      <button class="btn sec" onclick="aiStartRoleplay()">Giả lập KH để chốt thử</button>
+    </div>
+    <div id="aiScriptOut" class="aiout" style="display:none;margin-top:12px"></div>
+  </div>
+
+  <div class="card" id="rpCard" style="display:none;margin-top:14px">
+    <h2>🎭 Roleplay — chốt thử với "khách ảo"</h2>
+    <p class="muted small">AI đóng vai chính KH bạn chọn, dựa trên hồ sơ + độ khó. Bạn tập câu chốt, AI phản ứng như khách thật.</p>
+    <div class="chatbox" id="rpChat"></div>
+    <div class="row" style="margin-top:8px">
+      <input id="rpInput" placeholder="Nhập lời tư vấn của bạn..." onkeydown="if(event.key==='Enter')rpSend()" style="flex:1">
+      <button class="btn" onclick="rpSend()">Gửi</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h2>🆘 Gỡ tình huống khó (đang tư vấn)</h2>
+    <p class="muted small">Khách vừa nói gì làm bạn bí? Nhập vào đây, AI gợi ý hướng xử lý theo FPSC.</p>
+    <textarea id="situ" placeholder="VD: Khách bảo 'để em hỏi bố mẹ đã rồi tính', giọng lưỡng lự..."></textarea>
+    <div class="flexbtn"><button class="btn" onclick="aiSituation()">Gợi ý xử lý</button></div>
+    <div id="situOut" class="aiout" style="display:none;margin-top:12px"></div>
+  </div>
+</section>
+
+<!-- ============ RECORDING ============ -->
+<section id="rec" class="tab">
+  <div class="card">
+    <h2>🎙️ Ghi âm buổi tư vấn → Phân tích sau buổi</h2>
+    <div class="note">Trình duyệt chỉ thu được tiếng qua micro máy. Để nghe rõ cả khách: <b>bật loa ngoài</b> khi gọi. Đây là công cụ phân tích <b>sau buổi</b>, không phải trợ lý thời gian thực. Bản ghi lưu tạm trong phiên — nhớ Tải về để giữ.</div>
+    <div class="flexbtn" style="margin-top:12px">
+      <button class="btn" id="recBtn" onclick="toggleRec()">● Bắt đầu ghi</button>
+      <span id="recState" class="muted small"></span>
+    </div>
+    <div id="recList" style="margin-top:12px"></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h2>Phân tích</h2>
+    <label>Gắn với khách hàng (tùy chọn)</label>
+    <select id="recCust"></select>
+    <label>Bản ghi để phân tích</label>
+    <select id="recPick"></select>
+    <p class="muted small">AI sẽ thử bóc băng (phân biệt Tư vấn / Khách), chấm theo FPSC và gợi ý hướng cho lần sau. Clip ngắn (&lt;5 phút) cho kết quả tốt nhất.</p>
+    <div class="flexbtn"><button class="btn" onclick="aiAnalyzeRec()">Phân tích bằng AI</button></div>
+    <div id="recOut" class="aiout" style="display:none;margin-top:12px"></div>
+  </div>
+</section>
+
+<!-- ============ FPSC ============ -->
+<section id="fpsc" class="tab">
+  <div class="card">
+    <h2>Khung FRIEND → PROBLEM → SOLUTION → CLOSE</h2>
+    <div id="fpscBody"></div>
+  </div>
+</section>
+
+<!-- ============ OBJECTION ============ -->
+<section id="obj" class="tab">
+  <div class="card" style="margin-bottom:14px">
+    <h2>Nạp cẩm nang xử lý từ chối (file riêng)</h2>
+    <p class="muted small">Đẩy riêng file quy trình xử lý lời từ chối. AI phân tích và ghi lại các "key" xử lý gọn. Phần này KHÔNG bị nhồi vào các prompt khác nên không làm phình token chỗ khác.</p>
+    <input type="file" id="objFile" accept=".md,.txt,.csv,.json,.pdf,.docx">
+    <div class="flexbtn"><button class="btn" onclick="analyzeObjFile()">Phân tích & lưu key</button><button class="btn sec" onclick="clearObjProcess()">Xóa key đã lưu</button><span id="objFileState" class="muted small" style="align-self:center"></span></div>
+  </div>
+  <div class="toolbar">
+    <input id="objSearch" placeholder="Tìm lời từ chối..." oninput="renderObj()" style="min-width:240px">
+    <button class="btn sec" onclick="openObjAdd()">+ Thêm cẩm nang riêng (tag tên KH)</button>
+  </div>
+  <div id="objBody"></div>
+</section>
+
+<!-- ============ REPORT ============ -->
+<section id="report" class="tab">
+  <div class="toolbar">
+    <select id="repRange" onchange="renderReport()">
+      <option value="day">Theo ngày</option>
+      <option value="week" selected>Theo tuần</option>
+      <option value="month">Theo tháng</option>
+    </select>
+  </div>
+  <div class="card"><h2>Bảng tổng kết tiến độ</h2><div id="repBody"></div></div>
+</section>
+
+<!-- ============ SETTINGS ============ -->
+<section id="set" class="tab">
+  <div class="card">
+    <h2>Kết nối AI</h2>
+    <label>Chế độ</label>
+    <select id="sMode">
+      <option value="off">Tắt</option>
+      <option value="openai">Groq / OpenAI-compatible (miễn phí, không thẻ)</option>
+      <option value="key">Gemini API key riêng</option>
+      <option value="proxy">Gemini Proxy chung (chia sẻ team)</option>
+    </select>
+    <div id="oaiBox">
+      <div class="note">Groq: miễn phí, không cần thẻ. Lấy key tại console.groq.com → API Keys. Ollama (chạy Gemma 3 trên máy): để URL = http://localhost:11434/v1, key bỏ trống, model = gemma3:12b.</div>
+      <label>Base URL</label>
+      <input id="sOaiBase" placeholder="https://api.groq.com/openai/v1">
+      <label>API key <span class="muted">(Ollama thì bỏ trống)</span></label>
+      <input id="sOaiKey" placeholder="gsk_...">
+      <label>Model</label>
+      <input id="sOaiModel" placeholder="llama-3.3-70b-versatile">
+    </div>
+    <div id="keyBox" style="display:none">
+      <label>Gemini API key <span class="muted">(lấy free tại aistudio.google.com → Get API key)</span></label>
+      <input id="sKey" placeholder="AIza...">
+    </div>
+    <div id="proxyBox" style="display:none">
+      <label>URL Proxy (Cloudflare Worker)</label>
+      <input id="sProxy" placeholder="https://your-worker.workers.dev">
+    </div>
+    <div id="gmodelBox" style="display:none">
+      <label>Gemini model</label>
+      <input id="sModel" placeholder="gemini-2.0-flash">
+    </div>
+    <div class="flexbtn"><button class="btn sec" onclick="testAI()">Kiểm tra kết nối</button><span id="aiTest" class="small muted" style="align-self:center"></span></div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h2>Kiến thức cho AI (khóa học, quy định, ưu đãi)</h2>
+    <p class="muted small">Dán thông tin thật về khóa TOEIC DMAX vào đây (học phí, lộ trình, cam kết, chính sách cọc, ưu đãi). AI dùng đúng dữ liệu này để tạo kịch bản — tránh bịa số liệu.</p>
+    <textarea id="sKB" style="min-height:140px" placeholder="VD: Khóa TOEIC 0-650: 2 khóa, học phí ... ; cam kết đầu ra ...; cọc giữ chỗ ...; ưu đãi tháng này ..."></textarea>
+    <div class="flexbtn"><button class="btn sec" onclick="clearKB()">🗑 Xóa riêng Kiến thức cho AI</button><span class="muted small" style="align-self:center">Chỉ xóa kiến thức, không đụng dữ liệu KH. AI chỉ đọc 8000 ký tự đầu để khỏi vượt token.</span></div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h2>Hồ sơ cá nhân hóa (ưu tiên cao nhất)</h2>
+    <p class="muted small">Mỗi người dán hồ sơ sale của riêng mình: tính cách, văn phong, điểm mạnh/yếu, giá trị cốt lõi, triết lý bán hàng, cách xử lý từng loại từ chối. AI LUÔN ưu tiên hồ sơ này khi tạo kịch bản, phân tích ưu/nhược và gỡ tình huống khó. Để trống nếu chưa có.</p>
+    <textarea id="sPersona" style="min-height:170px" placeholder="HỒ SƠ CÁ NHÂN HÓA SALE - [Họ tên]&#10;Tính cách: ...&#10;Phong cách giao tiếp: ...&#10;Điểm mạnh: ...&#10;Điểm yếu cần AI lưu ý: ...&#10;Giá trị cốt lõi: ...&#10;Triết lý bán hàng: ...&#10;Cách xử lý khi khách trì hoãn/so sánh giá/từ chối: ..."></textarea>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h2>Nhập tài liệu cho AI đọc</h2>
+    <p class="muted small">Tải lên quy trình mẫu, tài liệu khóa học, kịch bản mẫu... AI đọc và đưa vào "Kiến thức cho AI". Hỗ trợ .md .txt .csv .json .pdf .docx. <b>Khuyên gửi Markdown (.md)</b> để AI đọc chuẩn nhất.</p>
+    <input type="file" id="docFiles" multiple accept=".md,.txt,.csv,.json,.pdf,.docx">
+    <div class="flexbtn">
+      <button class="btn sec" onclick="readDocs(false)">Lưu nguyên văn vào Kiến thức</button>
+      <button class="btn" onclick="readDocs(true)">Nhờ AI tóm tắt rồi lưu</button>
+      <span id="docState" class="small muted" style="align-self:center"></span>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h2>Link Form thu KH</h2>
+    <label>Dán link Google Form cá nhân (bấm "Tổng lượng Data" ở Tổng quan sẽ mở link này)</label>
+    <input id="sForm" placeholder="https://forms.gle/...">
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h2>Sao lưu dữ liệu</h2>
+    <p class="muted small">Data lưu trong trình duyệt máy này. Export thường xuyên để khỏi mất khi xóa cache.</p>
+    <div class="flexbtn">
+      <button class="btn" onclick="exportData()">⬇ Export (.json)</button>
+      <button class="btn sec" onclick="document.getElementById('imp').click()">⬆ Import</button>
+      <input type="file" id="imp" accept=".json" style="display:none" onchange="importData(this)">
+      <button class="btn danger" onclick="wipe()">Xóa toàn bộ</button>
+    </div>
+  </div>
+  <div class="flexbtn" style="margin-top:14px"><button class="btn" onclick="saveSettings()">💾 Lưu cài đặt</button><span id="setSaved" class="small muted" style="align-self:center"></span></div>
+</section>
+
+</main>
+
+<!-- ===== CUSTOMER MODAL ===== -->
+<div class="modal-bg" id="custModal">
+  <div class="modal">
+    <h2><span id="custTitle">Khách hàng</span><button class="x" onclick="closeModal('custModal')">✕</button></h2>
+    <h3>Chuẩn bị trước buổi telesale</h3>
+    <div class="grid2">
+      <div><label>Tên *</label><input id="cName"></div>
+      <div><label>Zalo / SĐT</label><input id="cZalo"></div>
+      <div><label>Link Facebook</label><input id="cFb"></div>
+      <div><label>Điểm test đầu vào</label><input id="cTest" placeholder="VD: 3/10 hoặc 250"></div>
+      <div><label>Trường NV1</label><input id="cSchool"></div>
+      <div><label>Mục tiêu TOEIC</label><input id="cGoal" placeholder="VD: 650+"></div>
+    </div>
+    <h3>Khai thác khi tư vấn</h3>
+    <div class="grid2">
+      <div><label>Ngành / Tổ hợp</label><input id="pNganh"></div>
+      <div><label>Quê</label><input id="pQue"></div>
+      <div><label>Tính cách</label><textarea id="pTinhcach" placeholder="VD: hướng nội, tự ti, quản lý thời gian kém..."></textarea></div>
+      <div><label>Gia đình</label><textarea id="pGiadinh" placeholder="VD: con út, có anh trai, tài chính trung bình..."></textarea></div>
+      <div><label>Tài chính</label><input id="pTaichinh" placeholder="Thấp / Trung bình / Khá"></div>
+      <div><label>Vấn đề cốt lõi (nỗi đau lõi)</label><textarea id="pVande" placeholder="VD: sợ thất bại như lần trước, mông lung về tương lai..."></textarea></div>
+    </div>
+    <h3>Đánh giá & trạng thái</h3>
+    <div class="grid3">
+      <div><label>Phân loại</label><select id="cLevel"><option>EASY</option><option selected>MEDIUM</option><option>HARD</option></select></div>
+      <div><label>DISC</label><select id="cDisc"><option value="">--</option><option>D</option><option>I</option><option>S</option><option>C</option></select></div>
+      <div><label>Độ sẵn sàng: <b id="cReadVal">30</b>%</label><input type="range" id="cRead" min="0" max="100" value="30" oninput="cReadVal.textContent=this.value"></div>
+      <div><label>Trạng thái</label><select id="cStatus">
+        <option value="moi">Mới</option><option value="da_goi">Đã gọi</option>
+        <option value="hen_lai">Hẹn lại</option><option value="chot">Chốt</option><option value="tu_choi">Từ chối</option>
+      </select></div>
+      <div><label>Follow-up (ngày & giờ)</label><input type="datetime-local" id="cFollow"></div>
+      <div><label>Lịch hẹn telesale (ngày & giờ)</label><input type="datetime-local" id="cApptTime"></div>
+      <div><label class="pill" style="margin-top:22px"><input type="checkbox" id="cThan" style="width:auto"> ⭐ KH thân tình</label></div>
+    </div>
+    <h3>Tiến trình chốt</h3>
+    <div class="row">
+      <label class="pill" style="margin:0"><input type="checkbox" id="cAppt" style="width:auto"> Đã hẹn</label>
+      <label class="pill" style="margin:0"><input type="checkbox" id="cDep" style="width:auto"> Đã cọc</label>
+      <label class="pill" style="margin:0"><input type="checkbox" id="cDone" style="width:auto"> Hoàn thành đơn</label>
+    </div>
+    <h3>Bảng tracking riêng</h3>
+    <div class="grid3">
+      <div><label>Điểm yếu</label><textarea id="tWeak"></textarea></div>
+      <div><label>Điểm chưa chắc chắn</label><textarea id="tUnsure"></textarea></div>
+      <div><label>Cần cải thiện</label><textarea id="tImprove"></textarea></div>
+    </div>
+    <label>Link video buổi trò chuyện (để phân tích)</label><input id="tVideo" placeholder="Drive/YouTube link...">
+    <label>Ghi chú chung</label><textarea id="cNotes"></textarea>
+    <div class="flexbtn" style="margin-top:16px">
+      <button class="btn" onclick="saveCust()">Lưu</button>
+      <button class="btn sec" onclick="closeModal('custModal')">Hủy</button>
+      <span style="flex:1"></span>
+      <button class="btn danger" id="delBtn" onclick="delCust()" style="display:none">Xóa KH</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== OBJECTION ADD MODAL ===== -->
+<div class="modal-bg" id="objModal">
+  <div class="modal" style="max-width:560px">
+    <h2><span>Cẩm nang xử lý riêng</span><button class="x" onclick="closeModal('objModal')">✕</button></h2>
+    <label>Tag tên KH</label><input id="oTag" placeholder="VD: Minh Tâm">
+    <label>Lời từ chối / lo ngại</label><input id="oObj">
+    <label>Cách xử lý (soạn riêng)</label><textarea id="oFix"></textarea>
+    <div class="flexbtn" style="margin-top:12px"><button class="btn" onclick="saveObjCustom()">Lưu</button></div>
+  </div>
+</div>
+
+<script>
+/* ================= DATA LAYER ================= */
+const LS='salecockpit_v1';
+const DEFSET={aiMode:'off',apiKey:'',proxyUrl:'',model:'gemini-2.0-flash',kb:'',formUrl:'',oaiBase:'https://api.groq.com/openai/v1',oaiKey:'',oaiModel:'llama-3.3-70b-versatile',persona:''};
+let db={customers:[],objections:[],objProcess:'',settings:Object.assign({},DEFSET)};
+let recordings=[]; // session-only: {id,name,blob,url,mime}
+
+function load(){try{const r=JSON.parse(localStorage.getItem(LS));if(r){db=Object.assign(db,r);db.settings=Object.assign({},DEFSET,r.settings||{})}}catch(e){}}
+function save(){localStorage.setItem(LS,JSON.stringify(db))}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+/* ================= NAV ================= */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active');setBg(b.dataset.tab);
+  if(b.dataset.tab==='dash')renderDash();
+  if(b.dataset.tab==='ai'){fillCustSelect('aiCust');document.getElementById('aiOffNote').style.display=db.settings.aiMode==='off'?'block':'none'}
+  if(b.dataset.tab==='rec'){fillCustSelect('recCust');fillRecPick()}
+  if(b.dataset.tab==='obj')renderObj();
+  if(b.dataset.tab==='report')renderReport();
+});
+
+/* ================= BACKGROUND / GLASS ================= */
+function setBg(tab){
+  const map={dash:'bgDash',kh:'bgKH',set:'bgSet'};
+  ['bgDash','bgKH','bgSet'].forEach(id=>{const v=document.getElementById(id);if(!v)return;
+    if(map[tab]===id){v.classList.add('show');try{v.play()}catch(e){}}else{v.classList.remove('show');try{v.pause()}catch(e){}}});
+}
+
+/* ================= DASHBOARD ================= */
+function isThan(c){return !!c.than} // đánh dấu tay = KH thân tình
+function renderDash(){
+  const cs=db.customers;
+  const D=cs.length, T=cs.filter(isThan).length, A=cs.filter(c=>c.appt).length,
+        C=cs.filter(c=>c.dep).length, H=cs.filter(c=>c.done).length;
+  mData.textContent=D; mThan.textContent=T; mHen.textContent=A; mOk.textContent=C;
+  fD.textContent=D; fT.textContent=T; fA.textContent=A; fC.textContent=C; fH.textContent=H;
+  const pct=(a,b)=>b?Math.round(a/b*100)+'%':'—';
+  rT.textContent=pct(T,D)+' phản hồi'; rA.textContent=pct(A,T)+' vào tư vấn';
+  rC.textContent=pct(C,A)+' chốt'; rH.textContent=pct(H,C)+' hoàn tất';
+  // ===== Lịch & việc cần làm =====
+  const now=new Date(), in24=new Date(now.getTime()+24*3600e3);
+  const parseDT=s=>new Date(s.length<=10?s+'T23:59':s);
+  const evs=upcomingEvents();
+  const startTom=new Date(now);startTom.setHours(0,0,0,0);startTom.setDate(startTom.getDate()+1);
+  const endTom=new Date(startTom);endTom.setDate(endTom.getDate()+1);
+  const dueNow=evs.filter(e=>parseDT(e.dt)<in24);
+  const tom=evs.filter(e=>{const d=parseDT(e.dt);return d>=startTom&&d<endTom&&d>=in24});
+  const evRow=(e,over)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)"><span><span class="chip ${e.type==='Hẹn telesale'?'c-hen_lai':'c-moi'}">${e.type}</span> <b>${esc(e.c.name)}</b> <span class="muted small">${fmtDT(e.dt)}${over?' · quá hạn':''}</span></span><button class="btn sm sec" onclick="openCust('${e.c.id}')">Mở</button></div>`;
+  let html=dueNow.length?dueNow.map(e=>evRow(e,parseDT(e.dt)<now)).join(''):'<p class="muted">Không có việc trong 24h tới.</p>';
+  if(tom.length)html+='<div class="muted small" style="margin:10px 0 4px;text-transform:uppercase;letter-spacing:.04em">— Ngày mai —</div>'+tom.map(e=>evRow(e,false)).join('');
+  todayList.innerHTML=html;
+  const hot=cs.filter(c=>(c.readiness||0)>=60&&!c.dep&&c.status!=='tu_choi').sort((a,b)=>b.readiness-a.readiness);
+  hotList.innerHTML=hot.length?hot.map(c=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><span><b>${esc(c.name)}</b> <span class="chip" style="background:#3a2a1a;color:#ff9a5a">${c.readiness}%</span></span><button class="btn sm" onclick="openCust('${c.id}')">Chốt</button></div>`).join(''):'<p class="muted">Chưa có KH nóng.</p>';
+  renderTimeline(evs);
+  renderWeeklyAlert();
+}
+kpiData.onclick=()=>{const u=db.settings.formUrl;if(u)window.open(u,'_blank');else{alert('Chưa có link Form. Vào Cài đặt để dán link.');}};
+kpiThan.onclick=()=>{document.querySelector('[data-tab=kh]').click();document.getElementById('fStatus').value='';renderKH(true)};
+kpiHen.onclick=()=>document.querySelector('[data-tab=kh]').click();
+kpiOk.onclick=()=>document.querySelector('[data-tab=kh]').click();
+
+function upcomingEvents(){
+  const evs=[];
+  db.customers.forEach(c=>{if(c.status==='tu_choi')return;
+    if(c.apptTime)evs.push({dt:c.apptTime,type:'Hẹn telesale',c});
+    if(c.follow)evs.push({dt:c.follow,type:'Follow-up',c});});
+  return evs.sort((a,b)=>a.dt.localeCompare(b.dt));
+}
+function fmtDT(s){if(!s)return'';if(s.length<=10)return s.split('-').reverse().join('/');const[d,t]=s.split('T');return d.split('-').reverse().join('/')+' '+t}
+function renderTimeline(evs){
+  const now=new Date();const future=evs.filter(e=>new Date(e.dt.length<=10?e.dt+'T23:59':e.dt)>=new Date(now.getTime()-24*3600e3)).slice(0,15);
+  timeline.innerHTML=future.length?future.map(e=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)"><span><span class="chip ${e.type==='Hẹn telesale'?'c-hen_lai':'c-moi'}">${e.type}</span> <b>${esc(e.c.name)}</b>${e.c.school?` <span class="muted small">· ${esc(e.c.school)}</span>`:''}</span><span class="small" style="white-space:nowrap">${fmtDT(e.dt)} <button class="btn sm sec" onclick="openCust('${e.c.id}')">Mở</button></span></div>`).join(''):'<p class="muted">Chưa có lịch hẹn/follow-up. Thêm ở hồ sơ KH (Lịch hẹn telesale / Follow-up).</p>';
+}
+function renderWeeklyAlert(){
+  const box=document.getElementById('weeklyAlert');
+  const now=new Date();
+  const wk=(off)=>{const s=new Date(now);s.setDate(s.getDate()-now.getDay()-7*off);s.setHours(0,0,0,0);const e=new Date(s);e.setDate(e.getDate()+7);return[s,e]};
+  const cnt=([s,e],f)=>db.customers.filter(c=>{const d=c[f+'At'];return d&&new Date(d)>=s&&new Date(d)<e}).length;
+  const [ts,te]=wk(0),[ls,le]=wk(1);
+  const depNow=cnt([ts,te],'dep'),depPrev=cnt([ls,le],'dep');
+  const apptNow=cnt([ts,te],'appt'),apptPrev=cnt([ls,le],'appt');
+  let msgs=[];
+  if(depPrev>0&&depNow<depPrev)msgs.push(`Cọc tuần này (${depNow}) giảm so với tuần trước (${depPrev}).`);
+  if(apptPrev>0&&apptNow<apptPrev)msgs.push(`Lịch hẹn tuần này (${apptNow}) giảm so với tuần trước (${apptPrev}).`);
+  if(!msgs.length){box.innerHTML='';return}
+  // advice from tracking weak points
+  const weaks=db.customers.filter(c=>c.tWeak).slice(-3).map(c=>`• ${esc(c.name)}: ${esc(c.tWeak)}`).join('<br>');
+  box.innerHTML=`<div class="card" style="margin-top:14px"><div class="warnbox"><b>⚠ Cảnh báo tiến độ tuần</b><br>${msgs.join('<br>')}<br><br><b>Gợi ý:</b> Soi lại điểm yếu đã ghi ở các buổi gần đây để điều chỉnh cách tư vấn:${weaks?'<br>'+weaks:' (chưa có ghi chú điểm yếu nào)'}</div></div>`;
+}
+
+/* ================= CRM ================= */
+function renderKH(thanOnly){
+  const q=(search.value||'').toLowerCase(), fs=fStatus.value, fl=fLevel.value;
+  let list=db.customers.filter(c=>{
+    if(thanOnly&&!isThan(c))return false;
+    if(fs&&c.status!==fs)return false;
+    if(fl&&c.level!==fl)return false;
+    if(q&&!((c.name||'')+(c.zalo||'')+(c.school||'')).toLowerCase().includes(q))return false;
+    return true;
+  });
+  const today=new Date().toISOString().slice(0,10);
+  khBody.innerHTML=list.map(c=>`<tr>
+    <td><b>${esc(c.name)}</b></td>
+    <td class="small">${esc(c.zalo||'')}${c.fb?` · <a href="${esc(c.fb)}" target="_blank">FB</a>`:''}</td>
+    <td class="small">${esc(c.test||'')}</td>
+    <td class="small">${esc(c.school||'')}</td>
+    <td><span class="chip lv-${c.level}">${c.level||''}</span></td>
+    <td>${c.disc?`<span class="disc disc-${c.disc}">${c.disc}</span>`:''}</td>
+    <td style="min-width:90px"><div class="bar"><i style="width:${c.readiness||0}%"></i></div><span class="small muted">${c.readiness||0}%</span></td>
+    <td><span class="chip c-${c.status}">${statusLabel(c.status)}</span></td>
+    <td>${tick(c.appt)}</td><td>${tick(c.dep)}</td><td>${tick(c.done)}</td>
+    <td class="small ${c.follow&&c.follow<today&&c.status!=='chot'?'overdue':''}">${c.follow||''}</td>
+    <td style="white-space:nowrap"><button class="btn sm sec" onclick="openCust('${c.id}')">Mở</button> <button class="btn sm danger" onclick="delCustRow('${c.id}')">Xóa</button></td>
+  </tr>`).join('')||'<tr><td colspan="13" class="muted" style="text-align:center;padding:24px">Chưa có KH. Bấm "+ Thêm KH".</td></tr>';
+  khCount.textContent=list.length+' KH';
+}
+function tick(v){return v?'<span style="color:var(--ok)">✔</span>':'<span class="muted">–</span>'}
+function statusLabel(s){return{moi:'Mới',da_goi:'Đã gọi',hen_lai:'Hẹn lại',chot:'Chốt',tu_choi:'Từ chối'}[s]||s}
+
+let editId=null;
+function openCust(id){
+  editId=id||null;
+  const c=id?db.customers.find(x=>x.id===id):{};
+  custTitle.textContent=id?('Sửa: '+c.name):'Thêm khách hàng';
+  delBtn.style.display=id?'inline-block':'none';
+  const g=(k,d='')=>c[k]??d;
+  cName.value=g('name');cZalo.value=g('zalo');cFb.value=g('fb');cTest.value=g('test');
+  cSchool.value=g('school');cGoal.value=g('goal');
+  pNganh.value=g('pNganh');pQue.value=g('pQue');pTinhcach.value=g('pTinhcach');
+  pGiadinh.value=g('pGiadinh');pTaichinh.value=g('pTaichinh');pVande.value=g('pVande');
+  cLevel.value=g('level','MEDIUM');cDisc.value=g('disc');cRead.value=g('readiness',30);cReadVal.textContent=g('readiness',30);
+  cStatus.value=g('status','moi');cFollow.value=g('follow');cApptTime.value=g('apptTime');cThan.checked=!!c.than;
+  cAppt.checked=!!c.appt;cDep.checked=!!c.dep;cDone.checked=!!c.done;
+  tWeak.value=g('tWeak');tUnsure.value=g('tUnsure');tImprove.value=g('tImprove');tVideo.value=g('tVideo');cNotes.value=g('notes');
+  document.getElementById('custModal').classList.add('show');
+}
+function saveCust(){
+  if(!cName.value.trim()){alert('Nhập tên KH');return}
+  let c=editId?db.customers.find(x=>x.id===editId):{id:uid(),createdAt:Date.now()};
+  const was={appt:c.appt,dep:c.dep,done:c.done};
+  Object.assign(c,{
+    name:cName.value.trim(),zalo:cZalo.value,fb:cFb.value,test:cTest.value,school:cSchool.value,goal:cGoal.value,
+    pNganh:pNganh.value,pQue:pQue.value,pTinhcach:pTinhcach.value,pGiadinh:pGiadinh.value,pTaichinh:pTaichinh.value,pVande:pVande.value,
+    level:cLevel.value,disc:cDisc.value,readiness:+cRead.value,status:cStatus.value,follow:cFollow.value,apptTime:cApptTime.value,than:cThan.checked,
+    appt:cAppt.checked,dep:cDep.checked,done:cDone.checked,
+    tWeak:tWeak.value,tUnsure:tUnsure.value,tImprove:tImprove.value,tVideo:tVideo.value,notes:cNotes.value,updatedAt:Date.now()
+  });
+  // stamp timestamps when a tick first turns on (for weekly report)
+  if(c.appt&&!was.appt)c.apptAt=Date.now();
+  if(c.dep&&!was.dep)c.depAt=Date.now();
+  if(c.done&&!was.done)c.doneAt=Date.now();
+  if(!editId)db.customers.push(c);
+  save();closeModal('custModal');renderKH();renderDash();
+}
+function delCust(){if(confirm('Xóa KH này?')){db.customers=db.customers.filter(x=>x.id!==editId);save();closeModal('custModal');renderKH();renderDash()}}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+
+/* ================= FPSC ================= */
+const FPSC=[
+ {k:'FRIEND — Tạo thiện cảm',w:'15đ',goal:'Giảm phòng thủ, mở kênh giao tiếp, xây tin tưởng ban đầu.',
+  tips:['Không bán hàng trong 2–3 phút đầu','Hỏi tên, hoàn cảnh, mục tiêu hiện tại','Chia sẻ câu chuyện cá nhân tương đồng ("Anh/mình cũng từng…")','Ngôn ngữ đồng cảm, không phán xét'],
+  err:'Nói quá dài, độc thoại, hỏi dồn dập, vào sản phẩm quá sớm.'},
+ {k:'PROBLEM — Đào nỗi đau',w:'25đ',goal:'Khách tự nhận ra và NÓI RA vấn đề thật sự.',
+  tips:['Đào tới nỗi đau lõi, không dừng ở bề mặt','Hỏi: tại sao → cảm giác đó thế nào → điều tệ nhất là gì','Kỹ thuật gương: lặp lại câu khách nói + "Em muốn nói thêm gì không?"','Để khách TỰ kết luận thay vì mình nói ra'],
+  err:'Dừng ở nỗi đau bề mặt ("em mất gốc") mà không đào tới lõi ("em sợ lại thất bại").',
+  extra:'3 câu mạnh nhất:\n• "Nếu tình trạng này kéo dài thêm 1 năm, điều tệ nhất là gì?"\n• "Điều gì khiến những lần trước em dừng lại?"\n• "Em sợ điều gì nhất trong quá trình học?"'},
+ {k:'SOLUTION — Giải pháp',w:'20đ',goal:'Kết nối sản phẩm với ĐÚNG nỗi đau đã khai thác.',
+  tips:['Chỉ chọn 1–2 lợi ích gắn trực tiếp nỗi đau','Dẫn: Môi trường → Đội nhóm → Giảng viên → Lộ trình → rồi mới tên sản phẩm','Kiểm tra sau mỗi điểm: "Em thấy có đúng với trường hợp của em không?"','Reframe thay vì tranh luận'],
+  err:'Liệt kê quá nhiều lợi ích (>3) → khách overload, mất tập trung.',
+  extra:'Reframe mẫu:\n• "Để năm 2 học" → "Năm nhất mới là thời điểm lợi thế nhất vì chưa áp lực chuyên ngành."\n• "Học phí cao" → chia nhỏ ra X/ngày, ít hơn một ly cà phê.'},
+ {k:'CLOSE — Chốt',w:'10đ',goal:'Dẫn khách tới hành động tiếp theo — không nhất thiết đóng tiền ngay.',
+  tips:['Không chốt cứng khi khách chưa 85%+','Chốt mềm: dẫn tới hành động nhỏ (gọi phụ huynh, hẹn follow-up)','Giữ ưu đãi thay vì tạo áp lực','Để khách tự đề xuất bước tiếp theo nếu có thể'],
+  err:'Chốt sai: ❌"cho em cọc luôn đi" ❌"còn mấy suất thôi" ❌"nghĩ kỹ làm gì cho mệt".',
+  extra:'Thang sẵn sàng: 0–30% đào PROBLEM · 30–60% sang SOLUTION · 60–84% chốt mềm + follow-up · 85–100% chốt nhẹ, dẫn thủ tục.\n\nCâu chốt mềm (70–85%):\n"Anh không muốn em quyết vội. Tối nay em trao đổi với bố mẹ, anh giữ toàn bộ ưu đãi cho em trước. Mình gọi lại sau khi em nói chuyện xong nhé?"'}
+];
+function renderFPSC(){
+  fpscBody.innerHTML=FPSC.map(s=>`<div class="fpsc-step"><b>${s.k}</b> <span class="muted small">(${s.w})</span>
+    <p style="margin:6px 0"><span class="muted">Mục tiêu:</span> ${s.goal}</p>
+    <ul style="margin:6px 0;padding-left:18px">${s.tips.map(t=>`<li>${t}</li>`).join('')}</ul>
+    ${s.extra?`<div class="note" style="white-space:pre-wrap;margin:6px 0">${s.extra}</div>`:''}
+    <p class="small" style="color:var(--bad);margin:6px 0">Lỗi thường gặp: ${s.err}</p></div>`).join('');
+}
+
+/* ================= OBJECTION LIBRARY ================= */
+const OBJ_BASE=[
+ {o:'"Để năm 2 học"',f:'Reframe lợi thế thời điểm: "Năm nhất thi ít, chưa áp lực chuyên ngành — học giờ vừa nhẹ vừa về đích sớm, năm cuối khỏi cuống."'},
+ {o:'"Sợ học không theo / học không nổi"',f:'"Anh từng gặp nhiều bạn như em. Điều khác biệt không phải IQ mà là môi trường và đội nhóm kèm sát. Em không phải người không học được, em chỉ chưa đi đủ xa thôi."'},
+ {o:'"Học phí cao quá"',f:'Chia nhỏ theo ngày, rồi hỏi lại: "So với mục tiêu nghề nghiệp, em thấy khoản đầu tư này có xứng không?" — neo vào giá trị, không tranh luận con số.'},
+ {o:'"Phải hỏi bố mẹ"',f:'Đừng phản đối. Hỗ trợ: "Anh giúp em chuẩn bị những điểm bố mẹ thường lo (tiền, thời gian, hiệu quả) để em trình bày cho gọn nhé?"'},
+ {o:'"Cần nghĩ thêm"',f:'Không push. Hỏi đào: "Điều gì đang khiến em chưa chắc chắn nhất?" rồi xử lý đúng nút thắt đó.'},
+ {o:'"Không thích học online"',f:'Thừa nhận cảm giác trước, rồi làm rõ hình thức thật (offline/hybrid/kèm 1-1) khớp với nhu cầu của em ở đâu.'}
+];
+function renderObj(){
+  const q=(objSearch.value||'').toLowerCase();
+  const base=OBJ_BASE.filter(x=>!q||(x.o+x.f).toLowerCase().includes(q));
+  const custom=(db.objections||[]).filter(x=>!q||((x.tag||'')+x.o+x.f).toLowerCase().includes(q));
+  const proc=(db.objProcess||'')?`<div class="card" style="margin-bottom:14px"><h2>📌 Key cẩm nang (từ file đã nạp)</h2><div class="aiout">${esc(db.objProcess)}</div></div>`:'';
+  objBody.innerHTML=proc+`<div class="card"><h2>Cẩm nang gốc (FPSC)</h2>${base.map(x=>`<details class="acc-item"><summary>${x.o}</summary><div class="body">${x.f}</div></details>`).join('')}</div>
+  <div class="card" style="margin-top:14px"><h2>Cẩm nang riêng theo từng KH</h2>${custom.length?custom.map(x=>`<details class="acc-item"><summary>${x.tag?`<span class="tag">@${esc(x.tag)}</span> `:''}${esc(x.o)}</summary><div class="body">${esc(x.f)}<br><button class="btn sm danger" style="margin-top:8px" onclick="delObj('${x.id}')">Xóa</button></div></details>`).join(''):'<p class="muted">Chưa có. Bấm "+ Thêm cẩm nang riêng" để ghi cách xử lý gắn tên từng bạn.</p>'}</div>`;
+}
+function openObjAdd(){oTag.value='';oObj.value='';oFix.value='';document.getElementById('objModal').classList.add('show')}
+function saveObjCustom(){if(!oObj.value.trim()){alert('Nhập lời từ chối');return}db.objections=db.objections||[];db.objections.push({id:uid(),tag:oTag.value.trim(),o:oObj.value.trim(),f:oFix.value.trim()});save();closeModal('objModal');renderObj()}
+function delObj(id){db.objections=db.objections.filter(x=>x.id!==id);save();renderObj()}
+async function analyzeObjFile(){
+  const f=objFile.files[0];if(!f){alert('Chọn file');return}
+  if(!aiOn()){alert('Bật AI trước (Cài đặt).');return}
+  objFileState.textContent='⏳ đang đọc & phân tích...';
+  try{
+    const txt=await extractFileText(f);
+    const r=await callAI(`Đây là tài liệu quy trình xử lý lời từ chối khi tư vấn TOEIC. Rút thành DANH SÁCH KEY dạng Markdown: mỗi lời từ chối phổ biến → 1-2 câu xử lý cốt lõi, dễ tra khi đang gọi. Ngắn gọn.\n\n${txt.slice(0,14000)}`,{system:'Bạn rút gọn quy trình xử lý từ chối thành các key ngắn gọn, tiếng Việt.'});
+    db.objProcess=r;save();renderObj();objFileState.textContent='✓ Đã lưu key';
+  }catch(e){objFileState.textContent='❌ '+e.message}
+}
+function clearObjProcess(){if(confirm('Xóa key cẩm nang đã lưu?')){db.objProcess='';save();renderObj()}}
+function clearKB(){if(confirm('Xóa toàn bộ Kiến thức cho AI? (không đụng dữ liệu KH)')){db.settings.kb='';sKB.value='';save()}}
+function delCustRow(id){const c=db.customers.find(x=>x.id===id);if(confirm('Xóa KH "'+(c?c.name:'')+'"?')){db.customers=db.customers.filter(x=>x.id!==id);save();renderKH();renderDash()}}
+
+/* ================= REPORT ================= */
+function renderReport(){
+  const range=repRange.value, cs=db.customers;
+  const bucket=(ts)=>{const d=new Date(ts);if(range==='day')return d.toISOString().slice(0,10);
+    if(range==='month')return d.toISOString().slice(0,7);
+    const o=new Date(d);o.setDate(o.getDate()-o.getDay());return 'Tuần '+o.toISOString().slice(0,10)};
+  const rows={};
+  const add=(ts,f)=>{if(!ts)return;const k=bucket(ts);rows[k]=rows[k]||{new:0,appt:0,dep:0,done:0};rows[k][f]++};
+  cs.forEach(c=>{add(c.createdAt,'new');add(c.apptAt,'appt');add(c.depAt,'dep');add(c.doneAt,'done')});
+  const keys=Object.keys(rows).sort().reverse();
+  repBody.innerHTML=keys.length?`<table><thead><tr><th>Kỳ</th><th>KH mới</th><th>Hẹn</th><th>Cọc</th><th>Hoàn thành</th><th>Chốt/Hẹn</th></tr></thead><tbody>${keys.map(k=>{const r=rows[k];return `<tr><td><b>${k}</b></td><td>${r.new}</td><td>${r.appt}</td><td>${r.dep}</td><td>${r.done}</td><td>${r.appt?Math.round(r.dep/r.appt*100)+'%':'—'}</td></tr>`}).join('')}</tbody></table>`:'<p class="muted">Chưa đủ dữ liệu. Thêm KH và tick tiến trình để có thống kê.</p>';
+}
+
+/* ================= AI CORE ================= */
+function aiOn(){return db.settings.aiMode!=='off'}
+function sysPrompt(){
+  const s=db.settings;
+  const persona=s.persona?`\n\n=== HỒ SƠ NGƯỜI TƯ VẤN (ƯU TIÊN CAO NHẤT) ===\nMọi gợi ý sale, phân tích ưu/nhược điểm và xử lý tình huống khó PHẢI khớp phong cách, văn phong, giá trị và điểm mạnh/yếu dưới đây trước tiên:\n${s.persona}`:'';
+  const kb=s.kb?`\n\n=== THÔNG TIN KHÓA HỌC, QUY ĐỊNH & QUY TRÌNH/VĂN PHONG MẪU DMAX (dùng đúng, không bịa; học theo văn phong mẫu nếu có) ===\n${s.kb.slice(0,8000)}`:'';
+  return `Bạn là trợ lý tư vấn bán khóa TOEIC cho học sinh 2K8 (vừa thi tốt nghiệp, chuẩn bị vào đại học) tại trung tâm DMAX. Bạn nắm framework FPSC: FRIEND (tạo thiện cảm) → PROBLEM (đào nỗi đau lõi) → SOLUTION (giải pháp gắn đúng nỗi đau) → CLOSE (chốt mềm, không tạo áp lực). Nguyên tắc: để khách tự kết luận, không chốt cứng khi khách chưa sẵn sàng 85%+, reframe thay vì tranh luận.
+
+XƯNG HÔ & VĂN PHONG: gọi khách là "em", người tư vấn tự xưng "anh/chị". Giọng thân thiện, ấm áp, gần gũi như anh chị khóa trên chia sẻ thật lòng — KHÔNG cứng nhắc, KHÔNG máy móc, KHÔNG giọng dịch máy. Câu ngắn, đời thường, dùng "mình/em" tự nhiên. Tránh các cụm trang trọng sáo rỗng.
+
+Trả lời bằng tiếng Việt, ngắn gọn, thực chiến.${persona}${kb}`;
+}
+// opts.history = [{role:'user'|'assistant', text}]   opts.audio/opts.mime = base64 audio (Gemini only)
+function toGeminiHist(h){return(h||[]).map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.text}]}))}
+function toOaiHist(h){return(h||[]).map(m=>({role:m.role,content:m.text}))}
+async function callAI(user,opts={}){
+  const s=db.settings;
+  if(s.aiMode==='off')throw new Error('AI đang tắt. Vào Cài đặt.');
+  const sys=opts.system!==undefined?opts.system:sysPrompt();
+
+  if(s.aiMode==='openai'){
+    if(opts.audio)throw new Error('Chế độ Groq/OpenAI chưa hỗ trợ phân tích audio. Phần ghi âm cần dùng Gemini.');
+    const messages=[{role:'system',content:sys}].concat(toOaiHist(opts.history)).concat([{role:'user',content:user}]);
+    const hd={'Content-Type':'application/json'};if(s.oaiKey)hd['Authorization']='Bearer '+s.oaiKey;
+    const r=await fetch(s.oaiBase.replace(/\/$/,'')+'/chat/completions',{method:'POST',headers:hd,body:JSON.stringify({model:s.oaiModel,messages})});
+    const j=await r.json();
+    if(j.error)throw new Error(j.error.message||JSON.stringify(j.error));
+    return j.choices?.[0]?.message?.content||'(không có phản hồi)';
+  }
+
+  if(s.aiMode==='proxy'){
+    const r=await fetch(s.proxyUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:sys,prompt:user,model:s.model,audio:opts.audio,mime:opts.mime,history:toGeminiHist(opts.history)})});
+    const j=await r.json();if(j.error)throw new Error(j.error);return j.text||'';
+  }
+
+  // gemini key mode
+  const parts=[{text:user}];
+  if(opts.audio)parts.unshift({inline_data:{mime_type:opts.mime,data:opts.audio}});
+  const contents=toGeminiHist(opts.history).concat([{role:'user',parts}]);
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${s.model}:generateContent?key=${s.apiKey}`;
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents})});
+  const j=await r.json();
+  if(j.error)throw new Error(j.error.message||'Lỗi API');
+  return j.candidates?.[0]?.content?.parts?.[0]?.text||'(không có phản hồi)';
+}
+function custBrief(c){
+  return `HỒ SƠ KHÁCH HÀNG:
+- Tên: ${c.name}; Quê: ${c.pQue||'?'}; Ngành/Tổ hợp: ${c.pNganh||'?'}; Trường NV1: ${c.school||'?'}
+- Điểm test đầu vào: ${c.test||'?'}; Mục tiêu TOEIC: ${c.goal||'?'}
+- Tính cách: ${c.pTinhcach||'?'}
+- Gia đình: ${c.pGiadinh||'?'}; Tài chính: ${c.pTaichinh||'?'}
+- Vấn đề/nỗi đau lõi: ${c.pVande||'?'}
+- Phân loại: ${c.level}; Độ sẵn sàng: ${c.readiness}%`;
+}
+function fillCustSelect(id){
+  const sel=document.getElementById(id);const cur=sel.value;
+  sel.innerHTML='<option value="">— chọn KH —</option>'+db.customers.map(c=>`<option value="${c.id}">${esc(c.name)}${c.school?' · '+esc(c.school):''}</option>`).join('');
+  if(cur)sel.value=cur;
+}
+function getAICust(){const id=aiCust.value;return db.customers.find(c=>c.id===id)}
+
+async function aiGenScript(){
+  const c=getAICust();if(!c){alert('Chọn KH');return}
+  const out=aiScriptOut;out.style.display='block';out.textContent='⏳ Đang tạo kịch bản...';
+  try{
+    const r=await callAI(`${custBrief(c)}
+
+Hãy tạo kịch bản chốt sale cho KH này, gồm 4 phần rõ ràng:
+1) DỰ ĐOÁN DISC: kiểu DISC của khách + 2-3 câu giải thích + hướng tư vấn nên đi.
+2) ÍT NHẤT 6 LỜI TỪ CHỐI có thể xảy ra, mỗi lời kèm 1 câu xử lý ngắn theo FPSC.
+3) KỊCH BẢN MỞ ĐẦU theo FRIEND→PROBLEM (3-4 câu thoại mẫu, cá nhân hoá theo hồ sơ).
+4) HƯỚNG CHỐT phù hợp với độ sẵn sàng hiện tại (${c.readiness}%).`);
+    out.textContent=r;
+  }catch(e){out.textContent='❌ '+e.message}
+}
+async function aiSituation(){
+  if(!situ.value.trim()){alert('Nhập tình huống');return}
+  const c=getAICust();
+  situOut.style.display='block';situOut.textContent='⏳...';
+  try{situOut.textContent=await callAI(`${c?custBrief(c)+'\n\n':''}TÌNH HUỐNG ĐANG GẶP: ${situ.value}\n\nGợi ý 2-3 hướng xử lý cụ thể theo FPSC, kèm câu thoại mẫu. Ngắn gọn, dùng được ngay.`)}
+  catch(e){situOut.textContent='❌ '+e.message}
+}
+
+/* roleplay */
+let rpHist=[];
+function aiStartRoleplay(){
+  const c=getAICust();if(!c){alert('Chọn KH');return}
+  document.getElementById('rpCard').style.display='block';rpHist=[];rpChat.innerHTML='';
+  addMsg('kh','(Khách "ảo" đã sẵn sàng. Bạn mở lời trước — chào hỏi, tạo thiện cảm.)');
+  document.getElementById('rpCard').scrollIntoView({behavior:'smooth'});
+}
+function addMsg(who,t){const d=document.createElement('div');d.className='msg '+who;d.textContent=t;rpChat.appendChild(d);rpChat.scrollTop=rpChat.scrollHeight}
+async function rpSend(){
+  const c=getAICust();if(!c)return;
+  const t=rpInput.value.trim();if(!t)return;
+  addMsg('me',t);rpInput.value='';
+  rpHist.push({role:'user',text:t});
+  const persona=`Bây giờ BẠN ĐÓNG VAI KHÁCH HÀNG sau đây, KHÔNG phải trợ lý. Trả lời như khách thật nói chuyện với tư vấn viên.
+${custBrief(c)}
+Quy tắc nhập vai: ${c.level==='HARD'?'Khó tính, phòng thủ 3 lớp (thông tin→cảm xúc→quyết định), không đồng ý nhanh, tụt cảm xúc nếu bị ép/chốt sớm, chỉ mở lòng khi thấy được hiểu.':c.level==='EASY'?'Khá cởi mở, chỉ cần thêm thông tin và được trấn an là gật.':'Có nhu cầu nhưng lưỡng lự về thời điểm/tiền, sẽ nêu 1-2 từ chối cụ thể.'}
+Chỉ trả lời 1-3 câu như khách. Cuối tin nhắn thêm dòng trong ngoặc: (trạng thái tâm lý, % sẵn sàng).`;
+  addMsg('kh','...');const ph=rpChat.lastChild;
+  try{
+    const r=await callAI(persona,{history:rpHist});
+    ph.textContent=r;rpHist.push({role:'assistant',text:r});
+  }catch(e){ph.textContent='❌ '+e.message}
+}
+
+/* ================= RECORDING ================= */
+let mediaRec=null,chunks=[],recOn=false;
+async function toggleRec(){
+  if(recOn){mediaRec.stop();return}
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    mediaRec=new MediaRecorder(stream);chunks=[];
+    mediaRec.ondataavailable=e=>chunks.push(e.data);
+    mediaRec.onstop=()=>{
+      const blob=new Blob(chunks,{type:mediaRec.mimeType||'audio/webm'});
+      const id=uid();recordings.push({id,name:'Ghi âm '+new Date().toLocaleString('vi'),blob,url:URL.createObjectURL(blob),mime:blob.type});
+      stream.getTracks().forEach(t=>t.stop());recOn=false;recBtn.textContent='● Bắt đầu ghi';recState.innerHTML='';renderRecList();fillRecPick();
+    };
+    mediaRec.start();recOn=true;recBtn.textContent='■ Dừng ghi';recState.innerHTML='<span class="rec-dot"></span> đang ghi...';
+  }catch(e){alert('Không truy cập được micro: '+e.message)}
+}
+function renderRecList(){
+  recList.innerHTML=recordings.length?recordings.map(r=>`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)"><b class="small">${r.name}</b><audio controls src="${r.url}" style="height:30px"></audio><a class="btn sm sec" href="${r.url}" download="${r.name}.webm">Tải về</a></div>`).join(''):'<p class="muted small">Chưa có bản ghi nào (chỉ lưu trong phiên này).</p>';
+}
+function fillRecPick(){recPick.innerHTML=recordings.length?recordings.map(r=>`<option value="${r.id}">${r.name}</option>`).join(''):'<option value="">— chưa có bản ghi —</option>'}
+function blobToB64(b){return new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.readAsDataURL(b)})}
+async function aiAnalyzeRec(){
+  const rec=recordings.find(r=>r.id===recPick.value);if(!rec){alert('Chưa có bản ghi');return}
+  const c=db.customers.find(x=>x.id===recCust.value);
+  recOut.style.display='block';recOut.textContent='⏳ Đang bóc băng & phân tích (clip dài sẽ lâu)...';
+  try{
+    const b64=await blobToB64(rec.blob);
+    const r=await callAI(`${c?custBrief(c)+'\n\n':''}Đây là bản ghi âm một buổi tư vấn bán khóa TOEIC (tiếng Việt). Hãy:
+1) Bóc băng tóm tắt, cố gắng phân biệt [TƯ VẤN] và [KHÁCH].
+2) Chấm theo FPSC (FRIEND/PROBLEM/SOLUTION/CLOSE), nêu điểm mạnh & điểm yếu.
+3) 3 câu nói hiệu quả nhất + 3 câu nên sửa (gốc → đề xuất).
+4) Hướng đi cho buổi/lần gọi sau để tăng tỉ lệ cọc.`,{audio:b64,mime:rec.mime});
+    recOut.textContent=r;
+  }catch(e){recOut.textContent='❌ '+e.message+'\n(Mẹo: bản ghi quá dài có thể vượt giới hạn. Thử clip ngắn hơn.)'}
+}
+
+/* ================= SETTINGS ================= */
+function loadSettings(){
+  const s=db.settings;sMode.value=s.aiMode;sKey.value=s.apiKey;sProxy.value=s.proxyUrl;sModel.value=s.model||'gemini-2.0-flash';sKB.value=s.kb||'';sForm.value=s.formUrl||'';
+  sOaiBase.value=s.oaiBase||DEFSET.oaiBase;sOaiKey.value=s.oaiKey||'';sOaiModel.value=s.oaiModel||DEFSET.oaiModel;sPersona.value=s.persona||'';
+  toggleModeBoxes();updateBadge();
+}
+sMode.onchange=toggleModeBoxes;
+function toggleModeBoxes(){const m=sMode.value;
+  oaiBox.style.display=m==='openai'?'block':'none';
+  keyBox.style.display=m==='key'?'block':'none';
+  proxyBox.style.display=m==='proxy'?'block':'none';
+  gmodelBox.style.display=(m==='key'||m==='proxy')?'block':'none';
+}
+function saveSettings(){
+  db.settings.aiMode=sMode.value;db.settings.apiKey=sKey.value.trim();db.settings.proxyUrl=sProxy.value.trim();
+  db.settings.model=sModel.value.trim()||'gemini-2.0-flash';db.settings.kb=sKB.value;db.settings.formUrl=sForm.value.trim();
+  db.settings.oaiBase=sOaiBase.value.trim()||DEFSET.oaiBase;db.settings.oaiKey=sOaiKey.value.trim();db.settings.oaiModel=sOaiModel.value.trim()||DEFSET.oaiModel;db.settings.persona=sPersona.value;
+  save();updateBadge();setSaved.textContent='✓ Đã lưu';setTimeout(()=>setSaved.textContent='',1500);
+}
+function updateBadge(){const m=db.settings.aiMode;const on=m!=='off';aiBadge.className='statusbadge '+(on?'on':'off');aiBadge.textContent='AI: '+({off:'tắt',openai:'Groq/OpenAI',key:'Gemini key',proxy:'Gemini proxy'}[m]||m)}
+async function testAI(){
+  saveSettings();aiTest.textContent='⏳ đang thử...';
+  try{const r=await callAI('Trả lời đúng 2 từ: "Kết nối OK"');aiTest.textContent='✓ '+r.slice(0,40)}
+  catch(e){aiTest.textContent='❌ '+e.message}
+}
+
+/* ================= BACKUP ================= */
+function exportData(){const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sale-cockpit-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click()}
+function importData(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.customers)throw 0;db=Object.assign(db,d);save();loadSettings();renderKH();renderDash();alert('Đã nhập dữ liệu.')}catch(e){alert('File không hợp lệ.')}};r.readAsText(f)}
+function wipe(){if(confirm('Xóa TOÀN BỘ dữ liệu trên máy này? Không hoàn tác.')){localStorage.removeItem(LS);location.reload()}}
+
+/* ================= IMPORT DOCS FOR AI ================= */
+async function extractFileText(f){
+  const n=f.name.toLowerCase();
+  if(n.endsWith('.pdf')){
+    if(!window.pdfjsLib)throw new Error('Cần internet để đọc PDF (thư viện pdf.js).');
+    const buf=await f.arrayBuffer();const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    let t='';for(let i=1;i<=pdf.numPages;i++){const p=await pdf.getPage(i);const c=await p.getTextContent();t+=c.items.map(x=>x.str).join(' ')+'\n'}return t;
+  }
+  if(n.endsWith('.docx')){
+    if(!window.mammoth)throw new Error('Cần internet để đọc .docx (thư viện mammoth).');
+    const buf=await f.arrayBuffer();return (await mammoth.extractRawText({arrayBuffer:buf})).value;
+  }
+  return await f.text();
+}
+async function readDocs(useAI){
+  const files=docFiles.files;if(!files.length){alert('Chọn file trước');return}
+  docState.textContent='⏳ đang đọc file...';
+  try{
+    let all='';
+    for(const f of files){all+=`\n\n# ${f.name}\n`+await extractFileText(f)}
+    let content=all.trim();
+    if(useAI){
+      if(!aiOn())throw new Error('Bật AI trước ở phần Kết nối AI.');
+      docState.textContent='⏳ AI đang tóm tắt...';
+      content=await callAI(`Đọc tài liệu sau và tóm tắt thành ghi chú Markdown thật gọn, GIỮ số liệu/quy định/bước quan trọng để dùng cho tư vấn sale TOEIC:\n\n${all.slice(0,14000)}`,{system:'Bạn tóm tắt tài liệu thành Markdown gọn, giữ số liệu quan trọng.'});
+    }
+    db.settings.kb=((db.settings.kb||'')+'\n\n'+content).trim();
+    sKB.value=db.settings.kb;save();
+    docState.textContent='✓ Đã thêm '+files.length+' file vào Kiến thức';
+  }catch(e){docState.textContent='❌ '+e.message}
+}
+
+/* ================= UTIL & INIT ================= */
+function esc(s){return(s==null?'':String(s)).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function aiLoadCust(){}
+if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+load();loadSettings();renderFPSC();renderKH();renderDash();setBg('dash');
+</script>
+</body>
+</html>
